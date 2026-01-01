@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:InstanceManager.App.ViewModels"
+             x:Class="InstanceManager.App.Views.BlockListsView"
+             x:DataType="vm:BlockListsViewModel">
+  <Border Padding="20" CornerRadius="12">
+    <StackPanel Spacing="10">
+      <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+        <!-- Refresh icon button -->
+        <Button Command="{Binding RefreshVrchatBlocksAsync}"
+                IsEnabled="{Binding CanInteract}"
+                Width="28" Height="28"
+                Padding="0"
+                VerticalContentAlignment="Center"
+                HorizontalContentAlignment="Center"
+                ToolTip.Tip="Refresh">
+          <TextBlock Text="⟳" FontSize="16" FontWeight="SemiBold"/>
+        </Button>
+
+        <!-- Title -->
+        <TextBlock Text="Black List"
+                  FontSize="18"
+                  FontWeight="SemiBold"
+                  VerticalAlignment="Center"/>
+      </StackPanel>
+
+      <TextBlock Text="{Binding Error}"
+                 IsVisible="{Binding HasError}"
+                 TextWrapping="Wrap" />
+
+      <TextBlock Text="VRChat Blocked User IDs" FontWeight="SemiBold"/>
+      <ListBox ItemsSource="{Binding VrchatBlockedUserIds}" Height="320"/>
+    </StackPanel>
+  </Border>
+</UserControl>

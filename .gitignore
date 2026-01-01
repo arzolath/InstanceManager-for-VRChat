@@ -1,0 +1,86 @@
+# =========================
+# .NET / C# / MSBuild
+# =========================
+[Bb]in/
+[Oo]bj/
+[Dd]ebug*/
+[Rr]elease*/
+x64/
+x86/
+[Aa]ny [Cc]pu/
+[Dd]ebugPublic/
+[Rr]eleases/
+artifacts/
+publish/
+AppPackages/
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# Build logs
+*.log
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+# (If you use PackageReference, you usually don't have /packages, but ignoring it is fine)
+
+# dotnet tools / local stuff
+.dotnet/
+.dgsync/
+
+# =========================
+# Visual Studio
+# =========================
+.vs/
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# =========================
+# JetBrains Rider / IntelliJ
+# =========================
+.idea/
+*.sln.iml
+
+# =========================
+# OS junk
+# =========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# =========================
+# Avalonia / XAML tooling
+# =========================
+# (Design-time caches / generated)
+**/*.xaml.cs~*
+*.cache
+*.tmp
+
+# =========================
+# User-specific config / secrets
+# =========================
+*.secrets.json
+appsettings.*.local.json
+appsettings.local.json
+
+# =========================
+# Crash dumps
+# =========================
+*.dmp

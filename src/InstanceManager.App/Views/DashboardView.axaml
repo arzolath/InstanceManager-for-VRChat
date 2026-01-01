@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:InstanceManager.App.ViewModels"
+             x:Class="InstanceManager.App.Views.DashboardView"
+             x:DataType="vm:DashboardViewModel">
+
+  <Border Padding="20" CornerRadius="12">
+    <StackPanel Spacing="12">
+
+      <!-- Header row -->
+      <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Top">
+        <Button Command="{Binding LoadMeCommand}"
+                IsEnabled="{Binding CanInteract}"
+                Width="28" Height="28"
+                Padding="0"
+                VerticalContentAlignment="Center"
+                HorizontalContentAlignment="Center"
+                ToolTip.Tip="Refresh">
+          <TextBlock Text="⟳" FontSize="16" FontWeight="SemiBold"/>
+        </Button>
+
+        <TextBlock Text="Profile"
+                   FontSize="18"
+                   FontWeight="SemiBold"
+                   VerticalAlignment="Center"/>
+      </StackPanel>
+
+      <!-- Busy indicator -->
+      <ProgressBar IsIndeterminate="True"
+                   IsVisible="{Binding IsBusy}" />
+
+      <!-- Data -->
+      <DataGrid ItemsSource="{Binding Fields}"
+                IsReadOnly="True"
+                AutoGenerateColumns="False">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="Field" Binding="{Binding Label}" Width="2*"/>
+          <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="3*"/>
+        </DataGrid.Columns>
+      </DataGrid>
+
+    </StackPanel>
+  </Border>
+</UserControl>

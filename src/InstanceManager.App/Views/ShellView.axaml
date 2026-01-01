@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:InstanceManager.App.ViewModels"
+             x:Class="InstanceManager.App.Views.ShellView"
+             x:DataType="vm:ShellViewModel">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="24">
+
+    <!-- Top bar -->
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+      <TextBlock Text="Instance Manager for VRChat"
+                 FontSize="22"
+                 FontWeight="SemiBold"
+                 VerticalAlignment="Center" />
+
+      <!-- User menu (only when logged in) -->
+      <StackPanel Grid.Column="1"
+                  Orientation="Horizontal"
+                  Spacing="10"
+                  VerticalAlignment="Center"
+                  IsVisible="{Binding IsLoggedIn}">
+
+        <Border Width="28" Height="28" CornerRadius="14" ClipToBounds="True">
+          <Image Source="{Binding AvatarUrl}" Stretch="UniformToFill"/>
+        </Border>
+
+        <Button>
+          <Button.Content>
+            <TextBlock Text="{Binding DisplayName}" />
+          </Button.Content>
+
+          <Button.Flyout>
+            <Flyout>
+              <StackPanel Spacing="8" Margin="10">
+                <Button Content="Logout" Command="{Binding LogoutAsync}" />
+              </StackPanel>
+            </Flyout>
+          </Button.Flyout>
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <!-- Main area -->
+    <Grid Grid.Row="1" ColumnDefinitions="220,*" ColumnSpacing="16">
+      <Border Padding="12" CornerRadius="12">
+        <StackPanel Spacing="8">
+          <Button Content="Profile" Command="{Binding GoDashboardAsync}" />
+          <Button Content="Block List" Command="{Binding GoBlockListsAsync}" />
+        </StackPanel>
+      </Border>
+
+      <ContentControl Grid.Column="1"
+                      Content="{Binding Nav.CurrentViewModel}" />
+    </Grid>
+
+    <!-- Footer -->
+    <Border Grid.Row="2" Padding="10" Margin="0,16,0,0" CornerRadius="12">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Content="arzolath/InstanceManager-for-VRChat"
+                Command="{Binding OpenGithub}" />
+      </StackPanel>
+    </Border>
+
+  </Grid>
+</UserControl>

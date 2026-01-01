@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:InstanceManager.App.ViewModels"
+        x:Class="InstanceManager.App.Views.ErrorDialog"
+        x:DataType="vm:ErrorDialogViewModel"
+        Width="640" Height="320"
+        Title="Error"
+        CanResize="True"
+        WindowStartupLocation="CenterOwner">
+  <Grid RowDefinitions="Auto,*" Margin="16">
+    <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold" />
+    <ScrollViewer Grid.Row="1" Margin="0,12,0,0">
+      <StackPanel Spacing="12">
+        <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
+        <Button Content="OK" HorizontalAlignment="Right" Width="90" Click="Ok_Click"/>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</Window>
