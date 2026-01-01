@@ -65,15 +65,31 @@ public partial class DashboardViewModel : ViewModelBase, INavigationAware, ILoad
         try
         {
             var me = await _auth.GetCurrentUserAsync(CancellationToken.None);
+            Console.WriteLine($"[Dashboard] Session.IsLoggedIn={Session.IsLoggedIn}, DisplayName={Session.DisplayName}");
+            Console.WriteLine($"[Dashboard] CurrentUserRawJson length={Session.CurrentUserRawJson?.Length ?? 0}");
+            if (!string.IsNullOrWhiteSpace(Session.CurrentUserRawJson))
+                Console.WriteLine($"[Dashboard] CurrentUserRawJson={Session.CurrentUserRawJson}");
+
             Status = me is null
                 ? "No user loaded."
                 : $"Logged in as {me.DisplayName}";
 
+            // DEBUG: Check if the JSON is available
+            System.Diagnostics.Debug.WriteLine($"CurrentUserRawJson is null: {string.IsNullOrWhiteSpace(Session.CurrentUserRawJson)}");
+            System.Diagnostics.Debug.WriteLine($"CurrentUserRawJson length: {Session.CurrentUserRawJson?.Length ?? 0}");
+
             if (!string.IsNullOrWhiteSpace(Session.CurrentUserRawJson))
+            {
+                Console.WriteLine("[Dashboard] Parsing CurrentUserRawJson");
                 LoadFieldsFromRaw(Session.CurrentUserRawJson);
+                Console.WriteLine($"[Dashboard] Fields count after parse: {Fields.Count}");
+            }
+            else
+                Status = "User data not available in session.";
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"[Dashboard] LoadMeAsync exception: {ex}");
             Status = ex.Message;
         }
         finally
@@ -84,9 +100,17 @@ public partial class DashboardViewModel : ViewModelBase, INavigationAware, ILoad
 
     private void LoadFieldsFromRaw(string raw)
     {
-        Fields.Clear();
-        using var doc = JsonDocument.Parse(raw);
-        Flatten("", doc.RootElement);
+        try
+        {
+            Fields.Clear();
+            using var doc = JsonDocument.Parse(raw);
+            Flatten("", doc.RootElement);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Dashboard] LoadFieldsFromRaw error: {ex}");
+            throw;
+        }
     }
 
     private void Flatten(string prefix, JsonElement el)

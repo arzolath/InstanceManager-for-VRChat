@@ -78,6 +78,9 @@ public partial class LoginViewModel : ViewModelBase
                 var me = await _auth.GetCurrentUserAsync(CancellationToken.None);
                 var raw = (_auth as VRChatAuthService)?.LastCurrentUserRawJson;
                 var avatar = AvatarUrlFromRaw(raw);
+                Console.WriteLine($"[Login] raw length={raw?.Length ?? 0}");
+                if (!string.IsNullOrWhiteSpace(raw))
+                    Console.WriteLine($"[Login] raw={raw}");
 
                 _session.SetLoggedIn(me?.DisplayName ?? "Logged in", avatar, raw);
 
@@ -126,6 +129,9 @@ public partial class LoginViewModel : ViewModelBase
                 var me = await _auth.GetCurrentUserAsync(CancellationToken.None);
                 var raw = (_auth as VRChatAuthService)?.LastCurrentUserRawJson;
                 var avatar = AvatarUrlFromRaw(raw);
+                Console.WriteLine($"[2FA] raw length={raw?.Length ?? 0}");
+                if (!string.IsNullOrWhiteSpace(raw))
+                    Console.WriteLine($"[2FA] raw={raw}");
 
                 _session.SetLoggedIn(me?.DisplayName ?? "Logged in", avatar, raw);
                 _root.Current = _shell;

@@ -22,15 +22,22 @@ public sealed class FileCookieStore : ICookieStore
 
     public async Task<string?> LoadCookieHeaderAsync(CancellationToken ct)
     {
-        if (!File.Exists(_path)) return null;
+        Console.WriteLine($"[CookieStore] LoadCookieHeader from {_path}");
+        if (!File.Exists(_path))
+        {
+            Console.WriteLine("[CookieStore] No cookie file found.");
+            return null;
+        }
 
         var json = await File.ReadAllTextAsync(_path, ct).ConfigureAwait(false);
         var doc = JsonSerializer.Deserialize<CookieDoc>(json);
+        Console.WriteLine($"[CookieStore] Loaded cookie header length={doc?.CookieHeader?.Length ?? 0}");
         return doc?.CookieHeader;
     }
 
     public async Task SaveCookieHeaderAsync(string cookieHeader, CancellationToken ct)
     {
+        Console.WriteLine($"[CookieStore] SaveCookieHeader to {_path}, length={cookieHeader?.Length ?? 0}");
         var json = JsonSerializer.Serialize(new CookieDoc(cookieHeader));
         await File.WriteAllTextAsync(_path, json, ct).ConfigureAwait(false);
     }

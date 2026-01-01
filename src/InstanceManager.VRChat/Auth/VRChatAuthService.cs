@@ -59,7 +59,10 @@ public sealed class VRChatAuthService : IAuthService, IVrchatApiContext
 
         // If no cookie was loaded, bail fast
         if (!_config.DefaultHeaders.TryGetValue("Cookie", out var cookie) || string.IsNullOrWhiteSpace(cookie))
+        {
+            Console.WriteLine("[Auth] TryRestoreSession: no cookie to use.");
             return new AuthResult(AuthStatus.Failed, "No saved session.", null);
+        }
 
         try
         {
@@ -68,6 +71,7 @@ public sealed class VRChatAuthService : IAuthService, IVrchatApiContext
                 ct
             ).ConfigureAwait(false);
             LastCurrentUserRawJson = resp.RawContent;
+            Console.WriteLine($"[Auth] TryRestoreSession: GetCurrentUser Data null? {resp.Data is null}, raw length={resp.RawContent?.Length ?? 0}");
 
             // If SDK gives typed Data, use it
             if (resp.Data is not null)
@@ -88,6 +92,10 @@ public sealed class VRChatAuthService : IAuthService, IVrchatApiContext
             // If it “needs 2FA again” or can’t parse, treat as invalid session
             await _cookieStore.ClearAsync(ct).ConfigureAwait(false);
             return new AuthResult(AuthStatus.Failed, "Saved session is not valid anymore.", null);
+        }
+        catch (ApiException ex) when (ex.ErrorCode == 429)
+        {
+            return new AuthResult(AuthStatus.Failed, "Too many attempts from your network. Please wait a few minutes and try again.", null);
         }
         catch (ApiException ex) when (ex.ErrorCode is 401 or 403)
         {
@@ -157,6 +165,7 @@ public sealed class VRChatAuthService : IAuthService, IVrchatApiContext
         if (_client is null || _config is null) return;
 
         var cookieHeader = await _cookieStore.LoadCookieHeaderAsync(ct).ConfigureAwait(false);
+        Console.WriteLine($"[Auth] TryApplySavedCookies: loaded header length={cookieHeader?.Length ?? 0}");
         if (string.IsNullOrWhiteSpace(cookieHeader)) return;
 
         // ApiClient in this SDK sends default headers. We'll attach Cookie header.
@@ -298,6 +307,10 @@ public sealed class VRChatAuthService : IAuthService, IVrchatApiContext
             _me = new InstanceManager.Core.Auth.CurrentUser(userId!, displayName ?? userId!);
             return new AuthResult(AuthStatus.Success, null, null);
         }
+        catch (ApiException ex) when (ex.ErrorCode == 429)
+        {
+            return new AuthResult(AuthStatus.Failed, "Too many login attempts from your network. Please wait a few minutes and try again.", null);
+        }
         catch (Exception ex)
         {
             return new AuthResult(AuthStatus.Failed, ex.Message, null);
@@ -372,6 +385,10 @@ public sealed class VRChatAuthService : IAuthService, IVrchatApiContext
 
             _me = new InstanceManager.Core.Auth.CurrentUser(userId!, displayName ?? userId!);
             return new AuthResult(AuthStatus.Success, null, null);
+        }
+        catch (ApiException ex) when (ex.ErrorCode == 429)
+        {
+            return new AuthResult(AuthStatus.Failed, "Too many login attempts from your network. Please wait a few minutes and try again.", null);
         }
         catch (Exception ex)
         {

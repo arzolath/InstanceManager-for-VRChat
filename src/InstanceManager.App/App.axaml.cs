@@ -104,6 +104,8 @@ public partial class App : Application
             var auth = Services.GetRequiredService<IAuthService>();
             var shell = Services.GetRequiredService<ShellViewModel>();
             var nav = Services.GetRequiredService<INavigationService>();
+            var session = Services.GetRequiredService<ISessionState>();
+            var vrchatAuth = auth as VRChatAuthService;
 
             _ = TryRestoreAsync();
 
@@ -116,8 +118,16 @@ public partial class App : Application
 
                     if (result.Status == AuthStatus.Success)
                     {
+                        var me = await auth.GetCurrentUserAsync(cts.Token);
+                        var raw = vrchatAuth?.LastCurrentUserRawJson;
+                        var avatar = ViewModelBase.AvatarUrlFromRaw(raw);
+                        Console.WriteLine($"[Startup] raw length={raw?.Length ?? 0}");
+                        if (!string.IsNullOrWhiteSpace(raw))
+                            Console.WriteLine($"[Startup] raw={raw}");
+
                         await Dispatcher.UIThread.InvokeAsync(() =>
                         {
+                            session.SetLoggedIn(me?.DisplayName ?? "Logged in", avatar, raw);
                             root.Current = shell;
                             nav.NavigateTo<DashboardViewModel>();
                         });
