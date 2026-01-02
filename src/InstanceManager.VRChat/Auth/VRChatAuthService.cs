@@ -179,35 +179,47 @@ public sealed class VRChatAuthService : IAuthService, IVrchatApiContext
     {
         if (_config is null) return;
 
-        // 1) Try Set-Cookie headers
+        // 1) Try explicit cookies on the response object (VRChat.API exposes these separately)
         string? cookieHeader = null;
+        var pairs = new List<string>();
 
-        if (resp.Headers is not null)
+        if (resp.Cookies is { Count: > 0 })
         {
-            var setCookies = resp.Headers
-                .Where(kvp => string.Equals(kvp.Key, "Set-Cookie", StringComparison.OrdinalIgnoreCase))
-                .Where(kvp => kvp.Value is not null)
-                .SelectMany(kvp => kvp.Value!)
-                .Where(v => !string.IsNullOrWhiteSpace(v))
-                .ToArray();
-
-            if (setCookies.Length > 0)
-            {
-                var pairs = setCookies
-                    .Select(sc => sc.Split(';', 2)[0].Trim())
-                    .Where(p => p.Contains('='))
-                    .Distinct(StringComparer.Ordinal)
-                    .ToArray();
-
-                if (pairs.Length > 0)
-                    cookieHeader = string.Join("; ", pairs);
-            }
+            pairs.AddRange(
+                resp.Cookies
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Name))
+                    .Select(c => $"{c.Name}={c.Value}")
+            );
         }
 
-        // 2) Fallback: CookieContainer from SDK (this is the important part)
+        // 2) Try Set-Cookie headers
+        if (resp.Headers is not null)
+        {
+            pairs.AddRange(
+                resp.Headers
+                    .Where(kvp => string.Equals(kvp.Key, "Set-Cookie", StringComparison.OrdinalIgnoreCase))
+                    .Where(kvp => kvp.Value is not null)
+                    .SelectMany(kvp => kvp.Value!)
+                    .Where(v => !string.IsNullOrWhiteSpace(v))
+                    .Select(sc => sc.Split(';', 2)[0].Trim())
+            );
+        }
+
+        if (pairs.Count > 0)
+        {
+            var distinct = pairs
+                .Where(p => p.Contains('='))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+
+            if (distinct.Length > 0)
+                cookieHeader = string.Join("; ", distinct);
+        }
+
+        // 3) Fallback: CookieContainer from SDK (this is the important part)
         cookieHeader ??= TryGetCookieHeaderFromCookieContainer();
 
-        // 3) Fallback: whatever is already set
+        // 4) Fallback: whatever is already set
         if (string.IsNullOrWhiteSpace(cookieHeader) && _config.DefaultHeaders.TryGetValue("Cookie", out var existing))
             cookieHeader = existing;
 
