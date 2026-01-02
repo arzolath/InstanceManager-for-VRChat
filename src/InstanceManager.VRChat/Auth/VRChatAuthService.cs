@@ -70,7 +70,7 @@ public sealed class VRChatAuthService : IAuthService, IVrchatApiContext
                 _ => Task.Run(() => _authApi.GetCurrentUserWithHttpInfo(), ct),
                 ct
             ).ConfigureAwait(false);
-            LastCurrentUserRawJson = resp.RawContent;
+            CaptureLastCurrentUserRaw(resp);
             Console.WriteLine($"[Auth] TryRestoreSession: GetCurrentUser Data null? {resp.Data is null}, raw length={resp.RawContent?.Length ?? 0}");
 
             // If SDK gives typed Data, use it
@@ -295,7 +295,7 @@ public sealed class VRChatAuthService : IAuthService, IVrchatApiContext
                 _ => Task.Run(() => _authApi.GetCurrentUserWithHttpInfo(), ct),
                 ct
             ).ConfigureAwait(false);
-            LastCurrentUserRawJson = resp.RawContent;
+            CaptureLastCurrentUserRaw(resp);
 
             _currentUser = resp.Data;
 
@@ -367,7 +367,7 @@ public sealed class VRChatAuthService : IAuthService, IVrchatApiContext
                 _ => Task.Run(() => _authApi.GetCurrentUserWithHttpInfo(), ct),
                 ct
             ).ConfigureAwait(false);
-            LastCurrentUserRawJson = resp.RawContent;
+            CaptureLastCurrentUserRaw(resp);
 
             // Prefer strongly typed model if it exists
             if (resp.Data is not null)
@@ -406,6 +406,27 @@ public sealed class VRChatAuthService : IAuthService, IVrchatApiContext
         {
             // Use ToString() temporarily while debugging so you see where it actually happens
             return new AuthResult(AuthStatus.Failed, ex.ToString(), null);
+        }
+    }
+
+    private void CaptureLastCurrentUserRaw(ApiResponse<CurrentUser> resp)
+    {
+        if (!string.IsNullOrWhiteSpace(resp.RawContent))
+        {
+            LastCurrentUserRawJson = resp.RawContent;
+            return;
+        }
+
+        if (resp.Data is not null)
+        {
+            try
+            {
+                LastCurrentUserRawJson = JsonSerializer.Serialize(resp.Data);
+            }
+            catch
+            {
+                LastCurrentUserRawJson = null;
+            }
         }
     }
 

@@ -42,6 +42,7 @@ public partial class App : Application
 
         // Storage
         services.AddSingleton<InstanceManager.Storage.Auth.ICookieStore, InstanceManager.Storage.Auth.FileCookieStore>();
+        services.AddSingleton<InstanceManager.Storage.Blocks.IVrchatBlockCache, InstanceManager.Storage.Blocks.FileVrchatBlockCache>();
         services.AddSingleton<ICustomBlockStore, FileCustomBlockStore>();
 
         // Auth (single concrete instance, shared for both interfaces)

@@ -6,7 +6,8 @@ namespace InstanceManager.Core.Blocks;
 
 public interface IBlockListService
 {
-    Task<IReadOnlyCollection<string>> GetVrchatBlockedUserIdsAsync(CancellationToken ct);
+    Task<IReadOnlyCollection<BlockedUser>> GetVrchatBlockedUsersAsync(CancellationToken ct, bool useCache = true);
+    Task<IReadOnlyCollection<string>> GetVrchatBlockedUserIdsAsync(CancellationToken ct, bool useCache = true);
     Task<IReadOnlyCollection<string>> GetCustomBlockedUserIdsAsync(string ownerUserId, CancellationToken ct);
 
     Task AddCustomBlockedUserIdAsync(string ownerUserId, string blockedUserId, CancellationToken ct);

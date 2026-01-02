@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -23,7 +24,9 @@ public partial class BlockListsViewModel : ViewModelBase, INavigationAware, ILoa
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private string? _error;
 
-    public ObservableCollection<string> VrchatBlockedUserIds { get; } = new();
+    public sealed record BlockedUserRow(string DisplayName, string UserId);
+    public ObservableCollection<BlockedUserRow> VrchatBlockedUsers { get; } = new();
+    public int BlockedCount => VrchatBlockedUsers.Count;
 
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
     public bool CanInteract => !IsBusy;
@@ -41,6 +44,7 @@ public partial class BlockListsViewModel : ViewModelBase, INavigationAware, ILoa
     {
         _auth = auth;
         _blocks = blocks;
+        VrchatBlockedUsers.CollectionChanged += (_, __) => OnPropertyChanged(nameof(BlockedCount));
     }
 
     partial void OnErrorChanged(string? value) => OnPropertyChanged(nameof(HasError));
@@ -73,11 +77,12 @@ public partial class BlockListsViewModel : ViewModelBase, INavigationAware, ILoa
                 return;
             }
 
-            var ids = await _blocks.GetVrchatBlockedUserIdsAsync(CancellationToken.None);
+            var users = await _blocks.GetVrchatBlockedUsersAsync(CancellationToken.None, useCache: true);
 
-            VrchatBlockedUserIds.Clear();
-            foreach (var id in ids)
-                VrchatBlockedUserIds.Add(id);
+            VrchatBlockedUsers.Clear();
+            foreach (var u in users)
+                VrchatBlockedUsers.Add(new BlockedUserRow(u.DisplayName ?? "(unknown)", u.UserId));
+            OnPropertyChanged(nameof(BlockedCount));
         }
         catch (Exception ex)
         {

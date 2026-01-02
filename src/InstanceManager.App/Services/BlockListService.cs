@@ -13,15 +13,60 @@ public sealed class BlockListService : IBlockListService
 {
     private readonly VrchatBlockApi _vrchat;
     private readonly ICustomBlockStore _store;
+    private readonly IVrchatBlockCache _cache;
+    private IReadOnlyCollection<BlockedUser>? _memoryCache;
 
-    public BlockListService(VrchatBlockApi vrchat, ICustomBlockStore store)
+    public BlockListService(VrchatBlockApi vrchat, ICustomBlockStore store, IVrchatBlockCache cache)
     {
         _vrchat = vrchat;
         _store = store;
+        _cache = cache;
     }
 
-    public Task<IReadOnlyCollection<string>> GetVrchatBlockedUserIdsAsync(CancellationToken ct)
-        => _vrchat.GetBlockedUserIdsAsync(ct);
+    public async Task<IReadOnlyCollection<BlockedUser>> GetVrchatBlockedUsersAsync(CancellationToken ct, bool useCache = true)
+    {
+        if (useCache)
+        {
+            if (_memoryCache is { Count: > 0 })
+                return _memoryCache;
+
+            var cached = await _cache.LoadAsync(ct).ConfigureAwait(false);
+            if (cached.Count > 0)
+            {
+                _memoryCache = cached;
+                return cached;
+            }
+        }
+
+        try
+        {
+            var live = await _vrchat.GetBlockedUsersAsync(ct).ConfigureAwait(false);
+            _memoryCache = live;
+            await _cache.SaveAsync(live, ct).ConfigureAwait(false);
+            return live;
+        }
+        catch
+        {
+            // Fall back to whatever we already have so the UI isn't empty when offline/API fails
+            if (_memoryCache is { Count: > 0 })
+                return _memoryCache;
+
+            var cached = await _cache.LoadAsync(ct).ConfigureAwait(false);
+            if (cached.Count > 0)
+            {
+                _memoryCache = cached;
+                return cached;
+            }
+
+            throw;
+        }
+    }
+
+    public async Task<IReadOnlyCollection<string>> GetVrchatBlockedUserIdsAsync(CancellationToken ct, bool useCache = true)
+    {
+        var users = await GetVrchatBlockedUsersAsync(ct, useCache).ConfigureAwait(false);
+        return users.Select(u => u.UserId).ToArray();
+    }
 
     public Task<IReadOnlyCollection<string>> GetCustomBlockedUserIdsAsync(string ownerUserId, CancellationToken ct)
         => _store.LoadAsync(ownerUserId, ct);
@@ -46,8 +91,8 @@ public sealed class BlockListService : IBlockListService
 
         if (mode is BlockSourceMode.VrchatOnly or BlockSourceMode.Both)
         {
-            foreach (var id in await _vrchat.GetBlockedUserIdsAsync(ct).ConfigureAwait(false))
-                set.Add(id);
+            foreach (var user in await GetVrchatBlockedUsersAsync(ct, useCache: true).ConfigureAwait(false))
+                set.Add(user.UserId);
         }
 
         if (mode is BlockSourceMode.CustomOnly or BlockSourceMode.Both)

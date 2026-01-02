@@ -18,7 +18,7 @@
         </Button>
 
         <!-- Title -->
-        <TextBlock Text="Black List"
+        <TextBlock Text="Block List"
                   FontSize="18"
                   FontWeight="SemiBold"
                   VerticalAlignment="Center"/>
@@ -28,8 +28,18 @@
                  IsVisible="{Binding HasError}"
                  TextWrapping="Wrap" />
 
-      <TextBlock Text="VRChat Blocked User IDs" FontWeight="SemiBold"/>
-      <ListBox ItemsSource="{Binding VrchatBlockedUserIds}" Height="320"/>
+      <TextBlock Text="{Binding BlockedCount, StringFormat='VRChat Blocked Users ({0})'}" FontWeight="SemiBold"/>
+
+      <ListBox ItemsSource="{Binding VrchatBlockedUsers}" Height="320">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Spacing="2">
+              <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
+              <TextBlock Text="{Binding UserId}" FontSize="12" Opacity="0.6"/>
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
     </StackPanel>
   </Border>
 </UserControl>

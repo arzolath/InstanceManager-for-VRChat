@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:InstanceManager.App.ViewModels"
              x:Class="InstanceManager.App.Views.DashboardView"
-             x:DataType="vm:DashboardViewModel">
+             x:DataType="vm:DashboardViewModel"
+             x:CompileBindings="False">
 
   <Border Padding="20" CornerRadius="12">
     <StackPanel Spacing="12">
@@ -29,15 +30,30 @@
       <ProgressBar IsIndeterminate="True"
                    IsVisible="{Binding IsBusy}" />
 
+      <!-- Status -->
+      <TextBlock Text="{Binding Status}"
+                 FontStyle="Italic"
+                 Opacity="0.8"/>
+
       <!-- Data -->
-      <DataGrid ItemsSource="{Binding Fields}"
-                IsReadOnly="True"
-                AutoGenerateColumns="False">
-        <DataGrid.Columns>
-          <DataGridTextColumn Header="Field" Binding="{Binding Label}" Width="2*"/>
-          <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="3*"/>
-        </DataGrid.Columns>
-      </DataGrid>
+      <ScrollViewer VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Auto"
+                    MaxHeight="420">
+        <ItemsControl ItemsSource="{Binding Fields}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Grid ColumnDefinitions="2*,3*" Margin="0,4">
+                <TextBlock Text="{Binding Label}"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap"/>
+                <TextBlock Grid.Column="1"
+                           Text="{Binding Value}"
+                           TextWrapping="Wrap"/>
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
 
     </StackPanel>
   </Border>
