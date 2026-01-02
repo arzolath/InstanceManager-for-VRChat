@@ -1,0 +1,107 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:InstanceManager.App.ViewModels"
+             xmlns:logs="clr-namespace:InstanceManager.Storage.Logs;assembly=InstanceManager.Storage"
+             x:Class="InstanceManager.App.Views.OwnedInstancesView"
+             x:DataType="vm:OwnedInstancesViewModel">
+
+  <Grid RowDefinitions="Auto,*">
+
+    <!-- Header -->
+    <Border Grid.Row="0" Padding="20" CornerRadius="12">
+      <StackPanel Spacing="12">
+        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Top">
+          <Button Command="{Binding RefreshAsync}"
+                  IsEnabled="{Binding CanInteract}"
+                  Width="28" Height="28"
+                  Padding="0"
+                  VerticalContentAlignment="Center"
+                  HorizontalContentAlignment="Center"
+                  ToolTip.Tip="Refresh">
+            <TextBlock Text="⟳" FontSize="16" FontWeight="SemiBold"/>
+          </Button>
+
+          <TextBlock Text="Owned Instances"
+                     FontSize="18"
+                     FontWeight="SemiBold"
+                     VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <TextBlock Text="{Binding Status}" FontStyle="Italic" />
+      </StackPanel>
+    </Border>
+
+    <!-- Scrollable content -->
+    <ScrollViewer Grid.Row="1"
+                  Padding="24"
+                  VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="16">
+
+        <Border Padding="12" CornerRadius="12">
+          <StackPanel Spacing="12">
+            <TextBlock Text="Instances you own" FontWeight="SemiBold" />
+
+            <ItemsControl ItemsSource="{Binding Instances}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:OwnedInstanceItem">
+                  <Border Padding="10" Margin="0,0,0,8" CornerRadius="8">
+                    <StackPanel Spacing="4">
+                      <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                      <TextBlock Text="{Binding Location}" FontSize="12" />
+
+                      <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="{Binding UserCount, StringFormat='Users: {0}'}" />
+                        <TextBlock Text="{Binding Capacity, StringFormat='Capacity: {0}'}" />
+                      </StackPanel>
+
+                      <ItemsControl ItemsSource="{Binding Users}">
+                        <ItemsControl.ItemsPanel>
+                          <ItemsPanelTemplate>
+                            <WrapPanel />
+                          </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate x:DataType="vm:InstanceUser">
+                            <Border Padding="4,2" CornerRadius="4" Margin="0,4,4,0">
+                              <TextBlock Text="{Binding Label}" />
+                            </Border>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+          </StackPanel>
+        </Border>
+
+        <Border Padding="12" CornerRadius="12">
+          <StackPanel Spacing="8">
+            <TextBlock Text="Kick history" FontWeight="SemiBold" />
+
+            <ItemsControl ItemsSource="{Binding KickEvents}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="logs:KickLogEntry">
+                  <Border Padding="10" Margin="0,0,0,8" CornerRadius="8">
+                    <StackPanel Spacing="4">
+                      <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:u}'}" FontSize="12" />
+                      <TextBlock Text="{Binding PlayerLabel}" FontWeight="SemiBold" />
+                      <TextBlock Text="{Binding InstanceLabel}" />
+                      <TextBlock Text="{Binding Action}" FontSize="12" />
+                      <TextBlock Text="{Binding Details}" FontSize="12" />
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+          </StackPanel>
+        </Border>
+
+      </StackPanel>
+    </ScrollViewer>
+
+  </Grid>
+</UserControl>

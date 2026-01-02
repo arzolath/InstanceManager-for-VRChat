@@ -46,6 +46,7 @@
         <StackPanel Spacing="8">
           <Button Content="Profile" Command="{Binding GoDashboardAsync}" />
           <Button Content="Block List" Command="{Binding GoBlockListsAsync}" />
+          <Button Content="Owned Instances" Command="{Binding GoOwnedInstancesAsync}" />
         </StackPanel>
       </Border>
 

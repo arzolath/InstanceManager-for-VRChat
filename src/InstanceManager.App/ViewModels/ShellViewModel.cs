@@ -81,6 +81,28 @@ public partial class ShellViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
+    public async Task GoOwnedInstancesAsync()
+    {
+        if (!_session.IsLoggedIn)
+        {
+            Exceptions.Report(new InvalidOperationException("Please login first."), "Navigation");
+            return;
+        }
+
+        try
+        {
+            Nav.NavigateTo<OwnedInstancesViewModel>();
+
+            if (Nav.CurrentViewModel is ILoadOnceViewModel loadOnce)
+                await loadOnce.EnsureLoadedAsync();
+        }
+        catch (Exception ex)
+        {
+            Exceptions.Report(ex, "Navigate to Owned Instances");
+        }
+    }
+
     private void SyncFromSession()
     {
         IsLoggedIn = _session.IsLoggedIn;

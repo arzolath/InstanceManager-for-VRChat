@@ -18,6 +18,8 @@ using InstanceManager.App.Services;
 using InstanceManager.Core.Errors;
 using Avalonia.Threading;
 using System.Threading.Tasks;
+using InstanceManager.VRChat.Instances;
+using InstanceManager.Storage.Logs;
 
 namespace InstanceManager.App;
 
@@ -44,6 +46,7 @@ public partial class App : Application
         services.AddSingleton<InstanceManager.Storage.Auth.ICookieStore, InstanceManager.Storage.Auth.FileCookieStore>();
         services.AddSingleton<InstanceManager.Storage.Blocks.IVrchatBlockCache, InstanceManager.Storage.Blocks.FileVrchatBlockCache>();
         services.AddSingleton<ICustomBlockStore, FileCustomBlockStore>();
+        services.AddSingleton<IKickLogStore, FileKickLogStore>();
 
         // Auth (single concrete instance, shared for both interfaces)
         services.AddSingleton<InstanceManager.VRChat.Auth.VRChatAuthService>();
@@ -57,9 +60,11 @@ public partial class App : Application
             return new PlayermoderationApi(ctx.Client, ctx.Client, ctx.Config);
         });
         services.AddTransient<VrchatBlockApi>();
+        services.AddTransient<VrchatInstanceApi>();
 
         // App services
         services.AddSingleton<IBlockListService, BlockListService>();
+        services.AddSingleton<InstanceAutomationService>();
 
         // ViewModels
         services.AddSingleton<AppRootViewModel>();
@@ -67,6 +72,7 @@ public partial class App : Application
         services.AddSingleton<ShellViewModel>();
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<BlockListsViewModel>();
+        services.AddTransient<OwnedInstancesViewModel>();
 
         Services = services.BuildServiceProvider();
     }
@@ -87,6 +93,7 @@ public partial class App : Application
             accessor.MainWindow = desktop.MainWindow;
 
             var reporter = Services.GetRequiredService<IExceptionReporter>();
+            _ = Services.GetRequiredService<InstanceAutomationService>();
 
             Dispatcher.UIThread.UnhandledException += (_, e) =>
             {
