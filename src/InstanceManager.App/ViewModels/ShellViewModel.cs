@@ -1,11 +1,12 @@
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
-using InstanceManager.Core.Navigation;
 using InstanceManager.App.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using InstanceManager.Core.Auth;
 using InstanceManager.Core.Errors;
 using System;
+using InstanceManager.Core.Navigation;
+using System.ComponentModel;
 
 namespace InstanceManager.App.ViewModels;
 
@@ -33,7 +34,24 @@ public partial class ShellViewModel : ViewModelBase
         _session = session;
         SyncFromSession();
         _session.Changed += SyncFromSession;
+
+        if (Nav is INotifyPropertyChanged npc)
+        {
+            npc.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(NavigationService.CurrentViewModel))
+                {
+                    OnPropertyChanged(nameof(IsDashboardActive));
+                    OnPropertyChanged(nameof(IsBlockListActive));
+                    OnPropertyChanged(nameof(IsOwnedInstancesActive));
+                }
+            };
+        }
     }
+
+    public bool IsDashboardActive => Nav.CurrentViewModel is DashboardViewModel;
+    public bool IsBlockListActive => Nav.CurrentViewModel is BlockListsViewModel;
+    public bool IsOwnedInstancesActive => Nav.CurrentViewModel is OwnedInstancesViewModel;
 
 
     [RelayCommand]

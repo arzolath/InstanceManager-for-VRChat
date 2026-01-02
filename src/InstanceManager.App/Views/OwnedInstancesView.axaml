@@ -5,103 +5,140 @@
              x:Class="InstanceManager.App.Views.OwnedInstancesView"
              x:DataType="vm:OwnedInstancesViewModel">
 
-  <Grid RowDefinitions="Auto,*">
+  <Border Classes="card" Padding="20">
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="14">
 
-    <!-- Header -->
-    <Border Grid.Row="0" Padding="20" CornerRadius="12">
-      <StackPanel Spacing="12">
-        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Top">
-          <Button Command="{Binding RefreshAsync}"
-                  IsEnabled="{Binding CanInteract}"
-                  Width="28" Height="28"
-                  Padding="0"
-                  VerticalContentAlignment="Center"
-                  HorizontalContentAlignment="Center"
-                  ToolTip.Tip="Refresh">
-            <TextBlock Text="⟳" FontSize="16" FontWeight="SemiBold"/>
-          </Button>
-
-          <TextBlock Text="Owned Instances"
-                     FontSize="18"
+      <!-- Header -->
+      <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="10" VerticalAlignment="Center">
+        <Button Grid.Column="0"
+                Command="{Binding RefreshAsync}"
+                IsEnabled="{Binding CanInteract}"
+                ToolTip.Tip="Refresh"
+                Width="42" Height="42" Padding="0" VerticalAlignment="Center">
+          <TextBlock Text="&#xE72C;"
+                     FontFamily="Segoe MDL2 Assets"
+                     FontSize="16"
                      FontWeight="SemiBold"
+                     HorizontalAlignment="Center"
                      VerticalAlignment="Center"/>
+        </Button>
+
+        <StackPanel Grid.Column="1" Spacing="4">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="Owned Instances" Classes="heading"/>
+            <Border Background="#1422D3EE"
+                    BorderBrush="#2222D3EE"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="8,4">
+              <TextBlock Text="VRChat API" Foreground="{StaticResource Color.AccentAlt}" FontSize="{StaticResource Font.Size.Small}"/>
+            </Border>
+          </StackPanel>
+          <TextBlock Text="{Binding Status}"
+                     Classes="muted"
+                     TextWrapping="Wrap"/>
         </StackPanel>
+      </Grid>
 
-        <TextBlock Text="{Binding Status}" FontStyle="Italic" />
-      </StackPanel>
-    </Border>
+      <ProgressBar Grid.Row="1" IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
 
-    <!-- Scrollable content -->
-    <ScrollViewer Grid.Row="1"
-                  Padding="24"
-                  VerticalScrollBarVisibility="Auto">
-      <StackPanel Spacing="16">
+      <!-- Content -->
+      <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="0,0,16,0">
+        <StackPanel Spacing="16" Margin="0,0,8,0">
 
-        <Border Padding="12" CornerRadius="12">
-          <StackPanel Spacing="12">
-            <TextBlock Text="Instances you own" FontWeight="SemiBold" />
+          <Border Classes="card" Padding="14">
+            <StackPanel Spacing="10">
+              <TextBlock Text="Instances you own" FontWeight="SemiBold" />
 
-            <ItemsControl ItemsSource="{Binding Instances}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="vm:OwnedInstanceItem">
-                  <Border Padding="10" Margin="0,0,0,8" CornerRadius="8">
-                    <StackPanel Spacing="4">
-                      <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                      <TextBlock Text="{Binding Location}" FontSize="12" />
+              <ItemsControl ItemsSource="{Binding Instances}" HorizontalAlignment="Stretch">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Spacing="10"/>
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
 
-                      <StackPanel Orientation="Horizontal" Spacing="12">
-                        <TextBlock Text="{Binding UserCount, StringFormat='Users: {0}'}" />
-                        <TextBlock Text="{Binding Capacity, StringFormat='Capacity: {0}'}" />
-                      </StackPanel>
-
-                      <ItemsControl ItemsSource="{Binding Users}">
-                        <ItemsControl.ItemsPanel>
-                          <ItemsPanelTemplate>
-                            <WrapPanel />
-                          </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                          <DataTemplate x:DataType="vm:InstanceUser">
-                            <Border Padding="4,2" CornerRadius="4" Margin="0,4,4,0">
-                              <TextBlock Text="{Binding Label}" />
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:OwnedInstanceItem">
+                    <Border Background="{StaticResource Color.SurfaceAlt}"
+                            BorderBrush="{StaticResource Color.SubtleBorder}"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="12">
+                      <StackPanel Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                          <StackPanel Spacing="2">
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding Location}" Classes="muted" FontSize="{StaticResource Font.Size.Small}"/>
+                          </StackPanel>
+                          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <Border Background="#143BB273" Padding="8,4" CornerRadius="8">
+                              <TextBlock Text="{Binding UserCount, StringFormat='Users: {0}'}" Foreground="{StaticResource Color.Success}" />
                             </Border>
-                          </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                      </ItemsControl>
-                    </StackPanel>
-                  </Border>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                            <Border Background="#14F59E0B" Padding="8,4" CornerRadius="8">
+                              <TextBlock Text="{Binding Capacity, StringFormat='Capacity: {0}'}" Foreground="{StaticResource Color.Warning}" />
+                            </Border>
+                          </StackPanel>
+                        </Grid>
 
-          </StackPanel>
-        </Border>
+                        <ItemsControl ItemsSource="{Binding Users}">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <WrapPanel />
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:InstanceUser">
+                              <Border Background="#14252A38" Padding="6,4" CornerRadius="6" BorderBrush="{StaticResource Color.SubtleBorder}" BorderThickness="1" Margin="0,0,6,6">
+                                <TextBlock Text="{Binding Label}" />
+                              </Border>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </StackPanel>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
 
-        <Border Padding="12" CornerRadius="12">
-          <StackPanel Spacing="8">
-            <TextBlock Text="Kick history" FontWeight="SemiBold" />
+            </StackPanel>
+          </Border>
 
-            <ItemsControl ItemsSource="{Binding KickEvents}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="logs:KickLogEntry">
-                  <Border Padding="10" Margin="0,0,0,8" CornerRadius="8">
-                    <StackPanel Spacing="4">
-                      <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:u}'}" FontSize="12" />
-                      <TextBlock Text="{Binding PlayerLabel}" FontWeight="SemiBold" />
-                      <TextBlock Text="{Binding InstanceLabel}" />
-                      <TextBlock Text="{Binding Action}" FontSize="12" />
-                      <TextBlock Text="{Binding Details}" FontSize="12" />
-                    </StackPanel>
-                  </Border>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
+          <Border Classes="card" Padding="14">
+            <StackPanel Spacing="10">
+              <TextBlock Text="Kick history" FontWeight="SemiBold" />
 
-          </StackPanel>
-        </Border>
+              <ItemsControl ItemsSource="{Binding KickEvents}" HorizontalAlignment="Stretch">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Spacing="8"/>
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
 
-      </StackPanel>
-    </ScrollViewer>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="logs:KickLogEntry">
+                    <Border Background="{StaticResource Color.SurfaceAlt}"
+                            BorderBrush="{StaticResource Color.SubtleBorder}"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="12">
+                      <StackPanel Spacing="4">
+                        <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:u}'}" FontSize="{StaticResource Font.Size.Small}" Classes="muted" />
+                        <TextBlock Text="{Binding PlayerLabel}" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding InstanceLabel}" Classes="muted" />
+                        <TextBlock Text="{Binding Action}" FontSize="{StaticResource Font.Size.Small}" />
+                        <TextBlock Text="{Binding Details}" FontSize="{StaticResource Font.Size.Small}" Classes="muted" />
+                      </StackPanel>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
 
-  </Grid>
+            </StackPanel>
+          </Border>
+
+        </StackPanel>
+      </ScrollViewer>
+
+    </Grid>
+  </Border>
 </UserControl>

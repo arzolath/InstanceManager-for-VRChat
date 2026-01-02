@@ -104,7 +104,7 @@ public sealed partial class OwnedInstancesViewModel : ViewModelBase, INavigation
                 if (!TrySplitLocation(loc, out var worldId, out var instanceId))
                     continue;
 
-                Instance instance;
+                Instance? instance;
                 try
                 {
                     instance = await _instances.GetInstanceAsync(worldId, instanceId, ct).ConfigureAwait(false);

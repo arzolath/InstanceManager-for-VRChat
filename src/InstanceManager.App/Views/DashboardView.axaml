@@ -5,56 +5,75 @@
              x:DataType="vm:DashboardViewModel"
              x:CompileBindings="False">
 
-  <Border Padding="20" CornerRadius="12">
-    <StackPanel Spacing="12">
+  <Border Classes="card" Padding="20">
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="12">
 
       <!-- Header row -->
-      <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Top">
-        <Button Command="{Binding LoadMeCommand}"
+      <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" VerticalAlignment="Center">
+        <Button Grid.Column="0"
+                Command="{Binding LoadMeCommand}"
                 IsEnabled="{Binding CanInteract}"
-                Width="28" Height="28"
-                Padding="0"
-                VerticalContentAlignment="Center"
-                HorizontalContentAlignment="Center"
-                ToolTip.Tip="Refresh">
-          <TextBlock Text="⟳" FontSize="16" FontWeight="SemiBold"/>
+                ToolTip.Tip="Refresh profile"
+                Width="42" Height="42" Padding="0" VerticalAlignment="Center">
+          <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Button>
 
-        <TextBlock Text="Profile"
-                   FontSize="18"
-                   FontWeight="SemiBold"
-                   VerticalAlignment="Center"/>
-      </StackPanel>
+        <StackPanel Grid.Column="1" Spacing="4">
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBlock Text="Profile" Classes="heading"/>
+            <Border Background="#1422D3EE"
+                    BorderBrush="#2222D3EE"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="8,4">
+              <TextBlock Text="Live session" Foreground="{StaticResource Color.AccentAlt}" FontSize="{StaticResource Font.Size.Small}"/>
+            </Border>
+          </StackPanel>
+          <TextBlock Text="{Binding Status}"
+                     Classes="muted"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
+      </Grid>
 
-      <!-- Busy indicator -->
-      <ProgressBar IsIndeterminate="True"
+      <ProgressBar Grid.Row="1"
+                   IsIndeterminate="True"
                    IsVisible="{Binding IsBusy}" />
 
-      <!-- Status -->
-      <TextBlock Text="{Binding Status}"
-                 FontStyle="Italic"
-                 Opacity="0.8"/>
-
       <!-- Data -->
-      <ScrollViewer VerticalScrollBarVisibility="Auto"
-                    HorizontalScrollBarVisibility="Auto"
-                    MaxHeight="420">
-        <ItemsControl ItemsSource="{Binding Fields}">
+      <ScrollViewer Grid.Row="2"
+                    VerticalScrollBarVisibility="Auto"
+                    Padding="0,0,16,0">
+        <ItemsControl ItemsSource="{Binding Fields}"
+                      HorizontalAlignment="Stretch"
+                      Margin="0,0,8,0">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Spacing="8"/>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <Grid ColumnDefinitions="2*,3*" Margin="0,4">
-                <TextBlock Text="{Binding Label}"
-                           FontWeight="SemiBold"
-                           TextWrapping="Wrap"/>
-                <TextBlock Grid.Column="1"
-                           Text="{Binding Value}"
-                           TextWrapping="Wrap"/>
-              </Grid>
+              <Border Background="{StaticResource Color.SurfaceAlt}"
+                      BorderBrush="{StaticResource Color.SubtleBorder}"
+                      BorderThickness="1"
+                      CornerRadius="10"
+                      Padding="12,10">
+                <Grid ColumnDefinitions="1.5*,2.5*" ColumnSpacing="12">
+                  <TextBlock Text="{Binding Label}"
+                             FontWeight="SemiBold"
+                             TextWrapping="Wrap"/>
+                  <TextBlock Grid.Column="1"
+                             Text="{Binding Value}"
+                             Classes="muted"
+                             TextWrapping="Wrap"/>
+                </Grid>
+              </Border>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
       </ScrollViewer>
 
-    </StackPanel>
+    </Grid>
   </Border>
 </UserControl>
