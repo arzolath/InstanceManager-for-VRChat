@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,6 +55,8 @@ public partial class LoginViewModel : ViewModelBase
         _shell = shell;
         _exceptions = exceptions;
         _session = session;
+
+        AvailableTwoFactorMethods.CollectionChanged += HandleTwoFactorMethodsChanged;
     }
 
     partial void OnErrorChanged(string? value) => OnPropertyChanged(nameof(HasError));
@@ -91,10 +94,16 @@ public partial class LoginViewModel : ViewModelBase
 
             if (result.Status == AuthStatus.RequiresTwoFactor && result.RequiredMethods is not null)
             {
-                foreach (var m in result.RequiredMethods)
+                var methods = result.RequiredMethods.Any()
+                    ? result.RequiredMethods
+                    : new[] { TwoFactorMethod.Totp };
+
+                foreach (var m in methods)
                     AvailableTwoFactorMethods.Add(m);
 
-                SelectedTwoFactorMethod = AvailableTwoFactorMethods[0];
+                SelectedTwoFactorMethod = AvailableTwoFactorMethods.First();
+                OnPropertyChanged(nameof(SelectedTwoFactorMethod));
+
                 IsTwoFactorRequired = true;
 
                 Error = "Two-factor authentication required. Enter the code and press Verify.";
@@ -157,6 +166,15 @@ public partial class LoginViewModel : ViewModelBase
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    private void HandleTwoFactorMethodsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (AvailableTwoFactorMethods.Count > 0)
+        {
+            SelectedTwoFactorMethod = AvailableTwoFactorMethods[0];
+            OnPropertyChanged(nameof(SelectedTwoFactorMethod));
         }
     }
 }

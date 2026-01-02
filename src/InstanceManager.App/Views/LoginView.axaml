@@ -33,7 +33,7 @@
 
             <TextBlock Text="Method"/>
             <ComboBox ItemsSource="{Binding AvailableTwoFactorMethods}"
-                      SelectedItem="{Binding SelectedTwoFactorMethod}" />
+                      SelectedItem="{Binding SelectedTwoFactorMethod, Mode=TwoWay}" />
 
             <TextBlock Text="Code"/>
             <TextBox Text="{Binding TwoFactorCode}" />
